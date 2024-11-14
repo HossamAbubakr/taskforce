@@ -1,0 +1,518 @@
+openapi: 3.0.0
+info:
+  title: Taskforce API
+  description: This simple API allows you to manage a set of user-generated tasks.
+  version: "0.1"
+servers:
+  - url: http://localhost:5002/api
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Finish homework"
+        description:
+          type: string
+          example: "Complete the math homework by Friday"
+        status:
+          type: string
+          enum:
+            - OPEN
+            - CLOSED
+          example: "OPEN"
+        due_date:
+          type: string
+          format: date-time
+          example: "2023-12-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-11-20T14:30:00Z"
+        userId:
+          type: integer
+          example: 42
+    CreateTask:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Finish homework"
+        description:
+          type: string
+          example: "Complete the math homework by Friday"
+        status:
+          type: string
+          enum:
+            - OPEN
+            - CLOSED
+          example: "OPEN"
+        due_date:
+          type: string
+          format: date-time
+          example: "2023-12-01T00:00:00Z"
+    TaskId:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          example: "john.doe@example.com"
+        password:
+          type: string
+          example: "password123"
+    CreateUser:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          example: "john.doe@example.com"
+        password:
+          type: string
+          example: "password123"
+    UserId:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    RegisterUser:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          example: "john.doe@example.com"
+        password:
+          type: string
+          example: "password123"
+        confirmPassword:
+          type: string
+          example: "password123"
+    LoginUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "john.doe@example.com"
+        password:
+          type: string
+          example: "password123"
+    AuthenticationError:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "AuthenticationError"
+        message:
+          type: string
+          example: "Invalid credentials or token."
+        statusCode:
+          type: integer
+          example: 401
+    AuthorizationError:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "AuthorizationError"
+        message:
+          type: string
+          example: "Unauthorized access to this resource."
+        statusCode:
+          type: integer
+          example: 403
+    ValidationError:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "ValidationError"
+        message:
+          type: string
+          example: "Request validation failed."
+        statusCode:
+          type: integer
+          example: 400
+    InternalServerError:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "InternalServerError"
+        message:
+          type: string
+          example: "Something went wrong, please try again later."
+        statusCode:
+          type: integer
+          example: 500
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+
+tags:
+  - name: tasks
+    description: Operations related to tasks (create, update, delete, get)
+  - name: users
+    description: Operations related to users (create, update, delete, get user)
+  - name: authentication
+    description: User authentication operations (login, signup)
+
+paths:
+  /tasks:
+    get:
+      summary: Get tasks by user
+      description: Retrieve tasks associated with the authenticated user.
+      security:
+        - cookieAuth: []
+      tags:
+        - tasks
+      responses:
+        '200':
+          description: A list of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized access. Invalid token or authentication.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    post:
+      summary: Create a new task
+      description: Adds a new task for the authenticated user.
+      security:
+        - cookieAuth: []
+      tags:
+        - tasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTask'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid request data (Validation Error).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthorized access. Invalid token or authentication.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    put:
+      summary: Update an existing task
+      description: Update an existing task with new information.
+      security:
+        - cookieAuth: []
+      tags:
+        - tasks
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid request data (Validation Error).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '404':
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+  /tasks/{id}:
+    get:
+      summary: Get task details by ID
+      description: Retrieve details for a specific task by ID.
+      security:
+        - cookieAuth: []
+      tags:
+        - tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the task to retrieve
+      responses:
+        '200':
+          description: Task details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    delete:
+      summary: Delete a task
+      description: Delete a task by its ID.
+      security:
+        - cookieAuth: []
+      tags:
+        - tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the task to delete
+      responses:
+        '204':
+          description: Task deleted successfully
+        '404':
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+  /users/{id}:
+    get:
+      summary: Get user details
+      description: Retrieve details of a user by their ID.
+      security:
+        - cookieAuth: []
+      tags:
+        - users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user to retrieve
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+  /users:
+    put:
+      summary: Update a user
+      description: Update an existing user's details.
+      security:
+        - cookieAuth: []
+      tags:
+        - users
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request data (Validation Error).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    delete:
+      summary: Delete a user
+      description: Delete a user by their ID.
+      security:
+        - cookieAuth: []
+      tags:
+        - users
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+  /auth/signup:
+    post:
+      summary: Register a new user
+      description: Registers a new user with a name, email, and password.
+      tags:
+        - authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUser'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error for registration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+  /auth/login:
+    post:
+      summary: Login an existing user
+      description: Logs in a user using their email and password.
+      tags:
+        - authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginUser'
+      responses:
+        '200':
+          description: User successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "jwt_token_here"
+                    description: JWT authentication token
+        '400':
+          description: Invalid credentials or data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationError'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'

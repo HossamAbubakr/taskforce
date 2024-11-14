@@ -1,0 +1,14 @@
+# DB connection string
+DATABASE_URL=
+# JWT secret key
+TOKEN_SECRET=
+# JWT expirey period
+TOKEN_EXPIRE=
+# Password pepper
+PEPPER=
+# Bcrypt salt rounds
+SALT_ROUNDS=
+# Cookie max age
+COOKIE_AGE=
+# Environment indicator (dev, prod, test)
+ENV=
