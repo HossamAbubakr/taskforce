@@ -1,0 +1,24 @@
+{
+  "name": "taskforce",
+  "version": "1.0.0",
+  "description": "Taskforce is a full-stack task management application with a React frontend (built with Vite) and a Node.js/Express backend. The project uses Docker for containerization, with `docker-compose` to orchestrate the services, and PostgreSQL as the database, managed via Prisma ORM.",
+  "main": "index.js",
+  "scripts": {
+    "install:local":  "npm run install:backend && npm run install:frontend",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "start:local": "npm run start:backend && npm run start:frontend",
+    "start:backend": "cd backend && npm run dev",
+    "start:frontend": "cd frontend && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HossamAbubakr/taskforce.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HossamAbubakr/taskforce/issues"
+  },
+  "homepage": "https://github.com/HossamAbubakr/taskforce#readme"
+}
